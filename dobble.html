@@ -1,0 +1,142 @@
+<html>
+    <head>
+        <title>Dobble</title>
+        <style type="text/css">
+            * {
+              box-sizing: border-box;
+            }
+            body {
+                color: #242626;
+                background-color: #F5F6F7;
+                display: flex;
+                flex-direction: column;
+                line-height: 26px;
+            }
+            div {
+                padding: 8px 0;
+            }
+            p {
+                border: 1px solid black;
+                margin: 4px;
+                padding: 4px;
+                background-color: white;
+            }
+            .title {
+                align-self: center;
+            }
+            .input,
+            .intro {
+                border-bottom: 1px solid #858A8C;
+            }
+            .dobble-cards-title {
+                flex-basis: 100%;
+            }
+            #dobble-cards {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 class="title">Générateur de cartes Dobble</h1>
+        <div class="intro">
+            Il faut choisir le nombre de symbole que tu veux sur chaque cartes.<br/>
+            Ce nombre détermine le nombre total de symboles ainsi que le nombre de cartes grâce à la formule : n² - n + 1 (où n est le nombre de symboles par cartes que tu as choisis)<br/>
+            (e.g. : 1 symbole par cartes -> 1 carte ; 2 symbole par cartes -> 3 cartes ; 3 -> 7 ; 4 ->  13 ; 5 -> 21 ; 6 -> 31 ; 7 -> 43 ; 8 -> 57 ; ...)<br/>
+            Dans la liste des cartes générée, chaque numéro correspond à un symbole de ton choix.<br/>
+            (e.g. : Si tu veux faire un thème sur les fruits, tu peux remplacer chaque 1 par des cerises, chaque 2 par des bananes, chaque 3 par des oranges,...).<br/>
+            Bisous maman :-).<br/>
+            @Papa : Si maman te fait bosser et que tu as plus simple d'utiliser excel, tu peux copier/coller la liste directement dans excel, tu auras une carte par ligne.<br/>
+            Bisous papa :-).<br/>
+        </div>
+        <div class="input">
+            Nombre de symboles sur chaque cartes : <input type="number" id="nbSymByCard" />
+        </div>
+        <div>
+            <span id="dobble-cards"></span>
+        </div>
+        <script type="text/javascript">
+            const dobble = (nbSymByCard) => {
+                const nbCards = (nbSymByCard*nbSymByCard) - nbSymByCard + 1;
+                const n = nbSymByCard - 1;
+                
+                let cards = [];
+                let t = [];
+
+                const t1 = [];
+                for (let i = 0; i < n; i++) {
+                    const tmp = [];
+                    for (let j = 0; j < n; j++) {
+                        tmp.push(j+1+i*n);
+                    }
+                    t1.push(tmp);
+                }
+                t.push(t1);
+
+                const t2 = [];
+                for (let ti = 0; ti < n-1; ti++) {
+
+                    const tmp = [];
+                    for (let i = 0; i < n; i++) {
+                    
+                        const tmp2 = [];
+                        for (let j = 0; j < n; j++) {
+                            tmp2.push(t[0][((ti+1)*j) % n][(j+i) % n]);
+                        }
+                        tmp.push(tmp2);
+                    }
+                    t2.push(tmp);
+
+                }
+                t = t.concat(t2);
+
+                const t3 = [];
+                for (let i = 0; i < n; i++) {
+                
+                    const tmp = [];
+                    for (let j = 0; j < n; j++) {
+                        tmp.push(t[0][j][i]);
+                    }
+                    t3.push(tmp);
+                }
+                t.push(t3);
+
+                for (let i = 0; i < n; i++) {
+                    t[0][i].push(nbCards - n);
+                    t[n][i].push(nbCards - n + 1);
+
+                    for (let  ti = 0; ti < n - 1; ti++) {
+                        t[ti+1][i].push(nbCards - n + 1 + ti + 1);
+                    }
+                }
+
+                const t4 = [];
+                for (let i = 0; i < nbSymByCard; i++) {
+                    t4.push(i+(nbCards-n));
+                }
+                t.push([t4]);
+
+                for (const ti of t) {
+                    cards = cards.concat(ti);
+                }
+
+                return cards;
+            };
+
+            const input = document.getElementById("nbSymByCard");
+            input.addEventListener("input", (keyboardEvent) => {
+                const cards = document.getElementById("dobble-cards");
+                const value = Number(keyboardEvent.target.value);
+                if (typeof value === "number" && !!value && value > 0) {
+                    dobbleCards = dobble(value);
+                    cards.innerHTML = "<div class='dobble-cards-title'>" + dobbleCards.length + " cartes/symboles au total : </div><p>" + dobbleCards.join("</p><p>") + "</p>";
+                } else {
+                    cards.innerHTML = "";
+                }
+            });
+        </script>
+    </body>
+</html>
